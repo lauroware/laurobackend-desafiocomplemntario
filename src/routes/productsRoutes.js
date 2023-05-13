@@ -1,6 +1,5 @@
 // Configura las rutas para manejar los productos
 const express = require("express");
-const fs = require("fs");
 const { Router } = require("express");
 const router = Router();
 const productosModel = require("../dao/models/productos.models");
@@ -67,19 +66,22 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ruta delete /id elimina el producto con el id seleccionado
+// DELETE /api/products/:id
 router.delete("/:id", async (req, res) => {
   try {
-    const productId = req.params.id;
-    const deletedProduct = await productosModel.findByIdAndDelete(productId);
+    const deletedProduct = await productosModel.findByIdAndDelete(
+      req.params.id
+    );
     if (deletedProduct) {
-      res.send(`Producto con ID ${productId} eliminado correctamente`);
+      res.send(`Producto con ID ${req.params.id} eliminado correctamente`);
     } else {
-      res.status(404).send(`El ID ${productId} no se encuentra registrado`);
+      res
+        .status(404)
+        .send({ error: `El ID ${req.params.id} no se encuentra registrado` });
     }
   } catch (err) {
-    console.log("Error al eliminar producto: ", err);
-    res.status(500).send("Error al eliminar producto");
+    console.log("Error al eliminar el producto: ", err);
+    res.status(500).send("Error al eliminar el producto");
   }
 });
 

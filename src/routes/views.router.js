@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-const productsData = fs.readFileSync("./src/products.json", "utf-8");
-const products = JSON.parse(productsData);
-const path = require("path");
-const handlebars = require("express-handlebars");
+const productosModel = require("../dao/models/productos.models");
 
-router.get("/", (req, res) => {
-  res.render("index", { products });
+router.get("/productos", async (req, res) => {
+  try {
+    const products = await Productos.find({});
+    res.render("productos", { products });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error interno del servidor");
+  }
 });
 
 module.exports = router;
