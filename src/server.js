@@ -2,15 +2,18 @@ const express = require("express");
 const productRoutes = require("./dao/products");
 const cartRoutes = require("./dao/carts");
 const app = express();
-const handlebars = require("handlebars");
 const { Server } = require("socket.io");
-const routerViews = require("./routes/views.router.js");
+const viewsRouter = require("./routes/views.router.js");
 const httpServer = app.listen(8080, () => console.log("Server Up "));
 const socketServer = new Server(httpServer);
 const mongoose = require("mongoose");
 const fs = require("fs");
 const Product = require("./dao/models/productos.models");
-const exphbs = require("express-handlebars");
+const session = require("express-session");
+const path = require("path");
+const sessionRouter = require("./routes/sessions.router");
+const MongoStore = require("connect-mongo");
+const handlebars = require("express-handlebars");
 
 mongoose
   .connect(
@@ -20,27 +23,104 @@ mongoose
   .then(() => console.log("Conexión a MongoDB establecida"))
   .catch((err) => console.log(`Error al conectar a MongoDB: ${err}`));
 
+app.use(viewsRouter);
 app.use(express.json());
 app.use("/api/products", productRoutes);
 app.use("/api/carts", cartRoutes);
-app.set("views", __dirname + "/views");
-app.use(express.static(__dirname + "/public"));
-
-const app1 = express();
-const hbs = exphbs.create({
-  /* config */
-});
-
-app.engine("handlebars", hbs.engine);
+app.set("views", path.join(__dirname, "views"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/sessions", sessionRouter);
+app.engine("handlebars", handlebars.engine);
 app.set("view engine", "handlebars");
 
+app.use(
+  session({
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://lauroware:totinas@totinas.z2xnjel.mongodb.net/ecommerce?retryWrites=true&w=majority",
+      dbName: "session-mongo-storage",
+    }),
+    secret: "mysecret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
+
+app.get("/preference", (req, res) => {
+  const address = {
+    calle: "calle 1",
+    zipcode: 1416,
+    city: "San Martín",
+  };
+  req.session.manor_adress = address;
+  res.send("dirección guardada con éxito");
+});
+
+app.get("/profile", (req, res) => {
+  if (!req.session.manor_adress)
+    return res.send("no has registrado ninguna dirección de envío");
+  const direccion = req.session.manor_adress;
+  res.send(
+    `Tu dirección de envío es: Calle: ${direccion.calle} - CIUDAD: ${direccion.city}`
+  );
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.send("error al hacer logout");
+  });
+  return res.send("logout");
+});
+
+const DB = [
+  {
+    username: "coder",
+    password: "secret",
+    role: "admin",
+  },
+];
+
+const auth = (req, res, next) => {
+  if (req.session.user) return next();
+  return res.send("error de autenticación");
+};
+
+app.get("/api/login", (req, res) => {
+  const { username, password } = req.query;
+  const user = DB.find(
+    (u) => u.username === username && u.password === password
+  );
+  if (!user) return res.send("credenciales inválidas");
+  req.session.user = user;
+  res.send("login exitoso");
+});
+
+app.get("/api/private", auth, (req, res) => res.send("bienvenidos"));
+
+app.get("/cookie/set", (req, res) => {
+  res.cookie("oreo", "es una masita muy rica").send("cookie seteada!");
+});
+
+app.get("/cookie/get", (req, res) => {
+  res.send(req.cookies.oreo);
+});
+
 async function server() {
-  // No estoy seguro si tengo que manejar todo lo que sigue desde product manager, pero como involucra tema del servidor (por websocket lo dejo aca)
   let products = await Product.find({});
 
   // Rutas
   app.get("/", (req, res) => {
-    res.render("home", { title: "Mi sitio web", message: "¡Bienvenidos!" });
+    res.render("index", { products });
+  });
+
+  app.get("/productos", async (req, res) => {
+    try {
+      const products = await Product.find({});
+      res.render("index", { products });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Error al obtener los productos");
+    }
   });
 
   let log = [];
@@ -152,3 +232,5 @@ async function server() {
     socket.emit("log", log);
   });
 }
+
+server();
