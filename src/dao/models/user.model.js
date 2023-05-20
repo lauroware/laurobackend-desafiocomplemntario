@@ -1,18 +1,16 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userCollection = "users";
 
 const userSchema = new mongoose.Schema({
-  firstname: String,
-  lastname: String,
+  first_name: String,
+  last_name: String,
   email: String,
   age: Number,
   password: String,
-  role: String,
 });
 
 mongoose.set("strictQuery", false);
-
 const userModel = mongoose.model(userCollection, userSchema);
 
-module.exports = userModel;
+export default userModel;

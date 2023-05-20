@@ -1,3 +1,6 @@
+import { io } from "socket.io-client";
+import Swal from "sweetalert2";
+
 const socket = io();
 
 socket.on("connect", () => {
@@ -22,7 +25,7 @@ deleteProductForm.addEventListener("submit", (event) => {
   deleteProductForm.reset();
 });
 
-//agregar producto
+// Agregar producto
 const addProductForm = document.querySelector("#addProductForm");
 addProductForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -46,7 +49,7 @@ addProductForm.addEventListener("submit", (event) => {
 
   socket.emit("add-product", newProduct);
 
-  //Notificación de sweet alert
+  // Notificación de sweet alert
   Swal.fire({
     title: "Producto agregado",
     text: `El producto ${newProduct.title} fue agregado.`,

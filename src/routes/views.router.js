@@ -1,8 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const Productos = require("../dao/models/productos.models");
+import express from "express";
+import Productos from "../dao/models/products.model.js";
 
-router.get("/productos", async (req, res) => {
+const router = express.Router();
+
+router.get("/products", async (req, res) => {
   try {
     const products = await Productos.find({});
     res.render("index", { products });
@@ -12,4 +13,4 @@ router.get("/productos", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
