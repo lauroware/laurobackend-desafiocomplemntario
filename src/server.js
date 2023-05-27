@@ -11,6 +11,7 @@ import userModel from "./dao/models/user.model.js";
 import __dirname from "./utils.js";
 import run from "./run.js";
 import initializePassport from "./passport.config.js";
+import sessionRouter from "./routes/session.router.js";
 
 const app = express();
 
@@ -48,5 +49,7 @@ app.use(
 initializePassport();
 app.use(passport.initialize());
 app.use(passport.session());
+app.use("/api/session", sessionRouter);
+app.get("/", (req, res) => res.send("HOME"));
 
 run(socketServer, app);

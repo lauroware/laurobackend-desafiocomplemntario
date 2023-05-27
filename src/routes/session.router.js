@@ -69,9 +69,25 @@ router.post(
     res.redirect("/session/profile");
   }
 );
+
 router.get("/failLogin", (req, res) => {
   res.send({ error: "Fail Login" });
 });
+
+router.get(
+  "/github",
+  passport.authenticate("github", { scope: ["user:email"] }),
+  (req, res) => {}
+);
+
+router.get(
+  "/githubcallback",
+  passport.authenticate("github", { failureRedirect: "/api/session/login" }),
+  async (req, res) => {
+    req.session.user = req.user;
+    res.redirect("/session/profile");
+  }
+);
 
 router.get("/profile", (req, res) => {
   const profilePath = path.join(
