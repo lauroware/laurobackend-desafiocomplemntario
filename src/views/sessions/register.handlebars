@@ -1,21 +1,38 @@
-<h1>Registrar Usuarios</h1>
-<form action="/session/register" method="post">
-  First name:
-  <input type="text" name="first_name" />
-  <br />
-  Last name:
-  <input type="text" name="last_name" />
-  <br />
-  Email:
-  <input type="text" name="email" />
-  <br />
-  Age:
-  <input type="text" name="age" />
-  <br />
-  Password:
-  <input type="text" name="password" />
-  <br />
-  Role:
-  <br />
-  <input type="submit" value="Crear" />
-</form>
+<html>
+  <head>
+    <title>Registrar Usuarios</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; } h1 {
+      text-align: center; } form { max-width: 400px; margin: 0 auto; } label {
+      display: block; margin-top: 10px; } input[type="text"],
+      input[type="password"] { width: 100%; padding: 10px; border: 1px solid
+      #ccc; border-radius: 4px; box-sizing: border-box; } input[type="submit"] {
+      width: 100%; padding: 10px; border: none; border-radius: 4px;
+      background-color: #4CAF50; color: #fff; cursor: pointer; }
+      input[type="submit"]:hover { background-color: #45a049; }
+    </style>
+  </head>
+  <body>
+    <h1>Registrar Usuarios</h1>
+    <form action="/session/register" method="post">
+      <label for="first_name">First name:</label>
+      <input type="text" id="first_name" name="first_name" />
+
+      <label for="last_name">Last name:</label>
+      <input type="text" id="last_name" name="last_name" />
+
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" />
+
+      <label for="age">Age:</label>
+      <input type="text" id="age" name="age" />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" />
+
+      <br />
+      <br />
+      <input type="submit" value="Crear" />
+    </form>
+  </body>
+</html>

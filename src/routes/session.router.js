@@ -3,6 +3,7 @@ import { dirname } from "path";
 import { Router } from "express";
 import userModel from "../dao/models/user.model.js";
 import path from "path";
+import { createHash, isValidPassword } from "../utils.js";
 
 const router = Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -16,7 +17,7 @@ router.get("/register", (req, res) => {
 // API para crear usuarios en la DB
 router.post("/register", async (req, res) => {
   const userNew = req.body;
-  console.log(userNew);
+  userNew.password = createHash(userNew.password);
 
   const user = new userModel(userNew);
   await user.save();
@@ -33,11 +34,17 @@ router.get("/login", (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await userModel.findOne({ email, password }).lean().exec();
+  const user = await userModel.findOne({ email }).lean().exec();
   if (!user) {
     return res.status(401).render("errors/base", {
       error: "Error en email y/o password",
     });
+  }
+
+  if (!isValidPassword(user, password)) {
+    return res
+      .status(403)
+      .send({ status: "error", error: "La contraseña es incorrecta" });
   }
 
   // Verificar si el usuario es administrador
@@ -47,6 +54,7 @@ router.post("/login", async (req, res) => {
     user.role = "usuario";
   }
 
+  delete user.password;
   req.session.user = user;
   res.redirect("/session/profile");
 });

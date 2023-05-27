@@ -1,27 +1,40 @@
-<h1>Bienvenido(a), {{user.first_name}} {{user.last_name}}</h1>
-<p>Email: {{user.email}}</p>
-<p>Rol: {{user.role}}</p>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lista de Productos</title>
+  </head>
+  <body>
+    <h1>Lista de Productos</h1>
+    <table>
+      <thead>
+        <tr>
+          <!-- Eliminar la columna del Id -->
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Código</th>
+          <th>Stock</th>
+          <th>Categoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each products}}
+          <tr>
+            <!-- Eliminar el <td> correspondiente al Id -->
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.category}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
 
-<h1>Products</h1>
-<hr />
-<table id="productsTable">
-  <tr>
-    <td><strong>Producto</strong></td>
-    <td><strong>Descripción</strong></td>
-    <td><strong>Precio</strong></td>
-    <td><strong>Código</strong></td>
-    <td><strong>Stock</strong></td>
-    <td><strong>Categoría</strong></td>
-  </tr>
-  {{#each data.docs}}
-    <tr>
-      <td>{{this.title}}</td>
-      <td>{{this.description}}</td>
-      <td>{{this.price}}</td>
-      <td>{{this.code}}</td>
-      <td>{{this.stock}}</td>
-      <td>{{this.category}}</td>
-    </tr>
-  {{/each}}
-</table>
-<div id="moving"></div>
+    </table>
+  </body>
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>

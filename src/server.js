@@ -4,8 +4,13 @@ import { Server } from "socket.io";
 import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import bcrypt from "bcryptjs";
+import userModel from "./dao/models/user.model.js";
 import __dirname from "./utils.js";
 import run from "./run.js";
+import initializePassport from "./passport.config.js";
 
 const app = express();
 
@@ -40,5 +45,8 @@ app.use(
   })
 );
 
-// Después de la conexión con MongoDB
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
 run(socketServer, app);

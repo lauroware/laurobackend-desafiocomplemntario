@@ -3,11 +3,25 @@ import productModel from "../dao/models/products.model.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const products = await productModel.find().lean().exec();
-  const limit = req.query.limit || 5;
+const obtenerProductos = async () => {
+  try {
+    const products = await productModel.find().lean().exec();
+    return products;
+  } catch (error) {
+    console.error("Error al obtener los productos:", error);
+    throw error;
+  }
+};
 
-  res.json(products.slice(0, parseInt(limit)));
+router.get("/", async (req, res) => {
+  try {
+    const products = await obtenerProductos();
+    const limit = req.query.limit || 5;
+    res.json(products.slice(0, parseInt(limit)));
+  } catch (error) {
+    console.error("Error al obtener los productos:", error);
+    res.status(500).json({ error: "Error al obtener los productos" });
+  }
 });
 
 router.get("/view", async (req, res) => {
@@ -77,3 +91,5 @@ router.put("/:pid", async (req, res) => {
 });
 
 export default router;
+
+export { obtenerProductos };
