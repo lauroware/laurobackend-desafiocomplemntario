@@ -1,10 +1,9 @@
-// auth.js
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import userModel from "../dao/models/user.model.js";
+import jwt from "jsonwebtoken";
 
-// Configuración de la estrategia de autenticación local
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
@@ -27,7 +26,6 @@ passport.use(
   })
 );
 
-// Serialización y deserialización de usuario
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });

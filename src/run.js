@@ -6,8 +6,6 @@ import productViewsRouter from "./routes/products.views.router.js";
 import sessionRouter from "./routes/session.router.js";
 import { obtenerProductos } from "./routes/products.router.js";
 
-// Resto del código del archivo
-
 const run = (socketServer, app) => {
   app.use((req, res, next) => {
     req.io = socketServer;

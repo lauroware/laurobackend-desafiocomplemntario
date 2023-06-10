@@ -3,8 +3,17 @@ import local from "passport-local";
 import UserModel from "./dao/models/user.model.js";
 import { createHash, isValidPassword } from "./utils.js";
 import GitHubStrategy from "passport-github2";
+import jwt, { ExtractJwt } from "passport-jwt";
+import { PRIVATE_KEY } from "./utils.js";
 
 const LocalStrategy = local.Strategy;
+
+const JWTStragtegy = jwt.Strategy;
+
+const cookieExtractor = (req) => {
+  const token = req && req.cookies ? req.cookies["marvel"] : null;
+  return token;
+};
 
 const initializePassport = () => {
   passport.use(
@@ -83,6 +92,23 @@ const initializePassport = () => {
           return done(null, newUser);
         } catch (err) {
           return done("Error to login with GitHub");
+        }
+      }
+    )
+  );
+
+  passport.use(
+    "jwt",
+    new JWTStragtegy(
+      {
+        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+        secretOrKey: PRIVATE_KEY,
+      },
+      async (jwt_payload, done) => {
+        try {
+          return done(null, jwt_payload);
+        } catch (error) {
+          return done(error);
         }
       }
     )

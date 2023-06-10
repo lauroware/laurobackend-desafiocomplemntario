@@ -5,7 +5,13 @@ import userModel from "../dao/models/user.model.js";
 import path from "path";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from "passport";
+import { passportCall } from "../utils.js";
+import { authToken } from "../utils.js";
+import { generateToken } from "../utils.js";
+import { authorization } from "../utils.js";
+import axios from "axios";
 
+const token = "marvel"; //
 const router = Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,15 +22,12 @@ router.get("/register", (req, res) => {
 });
 
 // API para crear usuarios en la DB
-router.post(
-  "/register",
-  passport.authenticate("register", {
-    failureRedirect: "/session/failRegister",
-  }),
-  async (req, res) => {
-    res.redirect("/session/login");
-  }
-);
+router.post("/register", passport.authenticate("register"), (req, res) => {
+  const user = req.body;
+
+  const access_token = generateToken(user);
+  res.json({ status: "success", access_token });
+});
 
 router.get("/failRegister", (req, res) => {
   res.send({ error: "Failed!" });
@@ -38,14 +41,12 @@ router.get("/login", (req, res) => {
 // API para login
 router.post(
   "/login",
-  passport.authenticate("login", {
-    failureRedirect: "/session/failLogin",
-  }),
-  async (req, res) => {
+  passport.authenticate("login"),
+  async (req, res, next) => {
     if (!req.user) {
       return res
         .status(400)
-        .send({ status: "error", error: "Invalid credentials" });
+        .json({ status: "error", error: "Invalid credentials" });
     }
 
     // Verificar si el usuario es administrador
@@ -55,7 +56,7 @@ router.post(
     ) {
       req.user.role = "admin";
     } else {
-      req.user.role = "usuario";
+      req.user.role = "user";
     }
 
     req.session.user = {
@@ -66,12 +67,39 @@ router.post(
       role: req.user.role,
     };
 
+    const access_token = generateToken(req.user); // Generar el token JWT
+
+    res.cookie("marvel", access_token);
     res.redirect("/session/profile");
   }
 );
 
 router.get("/failLogin", (req, res) => {
-  res.send({ error: "Fail Login" });
+  res.render("sessions/failLogin", {
+    error: "Su usuario o contraseña no son correctos",
+  });
+});
+
+const config = {
+  headers: {
+    Authorization: "Bearer [marvel]",
+  },
+};
+
+// router.get current
+router.get(
+  "/current",
+  passportCall("jwt"),
+  authorization("admin"),
+  (req, res) => {
+    res.json({ status: "success", payload: req.user });
+  }
+);
+
+// verificar si imprime la cockie lo puse porque tenía errores
+router.get("/cookies", (req, res) => {
+  console.log(req.cookies);
+  res.send("Cookies printed in the console");
 });
 
 router.get(

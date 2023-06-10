@@ -1,20 +1,40 @@
+<!-- profile.handlebars -->
+
 <html>
   <head>
     <style>
-      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; } h1 {
-      text-align: center; } p { margin-top: 10px; }
+      body { font-family: Arial, sans-serif; margin: 0; padding: 20px;
+      background-color: #f2f2f2; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; height: 100vh; } .card {
+      background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); padding:
+      20px; border-radius: 4px; text-align: center; } h1 { margin-bottom: 20px;
+      } p { margin-top: 10px; } .button { display: block; width: 120px; margin:
+      20px auto; padding: 10px; text-align: center; background-color: #4caf50;
+      color: #fff; text-decoration: none; border-radius: 4px; font-weight: bold;
+      } .button:hover { background-color: #45a049; }
     </style>
   </head>
   <body>
-    <h1>Bienvenido(a),
-      {{#if user.githubId}}
-        {{user.displayName}}
-      {{else}}
-        {{user.first_name}}
-        {{user.last_name}}
-      {{/if}}
-    </h1>
-    <p>Email: {{user.email}}</p>
-    <p>Rol: {{user.role}}</p>
+    {{#unless user}}
+      <h1>No hay sesión iniciada</h1>
+      <a href="/session/login" class="button">Iniciar Sesión</a>
+    {{else}}
+      <div class="card">
+        <h1>Bienvenido(a),
+          {{#if user.githubId}}
+            {{user.displayName}}
+          {{else}}
+            {{user.first_name}}
+            {{user.last_name}}
+          {{/if}}
+        </h1>
+        <p>Email: {{user.email}}</p>
+        <p>Rol: {{user.role}}</p>
+
+        <a href="/" class="button">Ver Productos</a>
+        <a href="/session/logout" class="button">Cerrar Sesión</a>
+        <a href="/api/session/current" class="button">Ver info adicional</a>
+      </div>
+    {{/unless}}
   </body>
 </html>
